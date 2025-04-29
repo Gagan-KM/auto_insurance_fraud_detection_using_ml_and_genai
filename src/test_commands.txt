@@ -1,0 +1,4 @@
+1.What is the average claim amount for customers who reported fraud and those who did not reported fraud ?
+2. Compare the total claim amounts for different incident types.
+3. Show the number of claims where the policy annual premium is greater than $1000.
+4. Compare the average claim amounts between fraud and non-fraud cases

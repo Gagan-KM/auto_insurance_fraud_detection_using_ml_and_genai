@@ -1,0 +1,15 @@
+matplotlib
+seaborn
+joblib
+python-dotenv
+openai
+streamlit
+scikit-learn
+xgboost
+pandas
+numpy
+langchain
+psycopg2-binary
+sqlalchemy
+shap
+ollama
