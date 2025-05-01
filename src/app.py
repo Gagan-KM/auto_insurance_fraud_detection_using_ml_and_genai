@@ -6,6 +6,10 @@ import json
 from sql_generator import query_ollama, conn, cursor
 from fraud_detector import query
 from plotting import question, generate_code
+import seaborn as sns
+import matplotlib.pyplot as plt
+import traceback
+from plotting import df, generate_code
 
 # Streamlit UI
 st.title("Auto Insurance Fraud Detection")
@@ -25,18 +29,33 @@ if user_query:
             st.write("Result:")
             st.write(response)
     elif task_option == "Plotting":
-        if question:
+        if user_query.strip():
             try:
-                st.write("Generating Python code using LLM...")
-                code = generate_code(question, df.columns)
+                st.write("🧠 Querying Mistral and generating Python code...")
+                code = generate_code(user_query, df.columns)
+                st.subheader("🧾 Generated Python Code")
                 st.code(code, language="python")
 
-                # Execute the generated code safely (in a restricted namespace)
+                # Clear previous plots
+                plt.clf()
+
+                # Execute the code safely
                 local_vars = {"df": df.copy()}
-                exec(code, {"pd": pd, "sns": __import__("seaborn"), "plt": __import__("matplotlib.pyplot")}, local_vars)
-            except Exception as e:
-                st.error("Error in running generated code:")
+                exec(code, {
+                    "pd": pd,
+                    "sns": sns,
+                    "plt": plt
+                }, local_vars)
+
+                # Display the new plot
+                st.pyplot(plt.gcf())
+                plt.clf()  # Optional: to avoid ghost plots when switching questions
+
+            except Exception:
+                st.error("❌ An error occurred while running the generated code:")
                 st.text(traceback.format_exc())
+        else:
+            st.warning("Please enter a question to generate the plot.")
     else:
         # SQL-related query
         with st.spinner("Generating SQL and retrieving data..."):

@@ -1,92 +1,81 @@
 import streamlit as st
-import pandas as pd
-import traceback
 import requests
+import mysql.connector
+import pandas as pd
+import json
+import seaborn as sns
+import matplotlib.pyplot as plt
+import traceback
 
-# Load dataset
-df = pd.read_csv(r"C:\Users\gagan\Desktop\auto_insurance_fraud_detection_using_ml_and_genai\data\insurance_claims.csv")
-
-# LLM-based code generation
-def generate_code(question, columns):
-    prompt = f"""
-You are a data scientist. Given the following user question and dataset columns, generate Python code using pandas and seaborn to create a plot.
-
-You are restricted from using words like python and ``` symbols
-
-You are strictly restricted from using comments and making documentation, generate only the code, no comments needed here.
-Dataset Columns: {columns}
-User Question: {question}
-
-You will also have access to the unique values for some categorical column, which will help in constructing the query.
-
-policy_state = ['OH', 'IN', 'IL']
-policy_csl = ['250/500', '100/300', '500/1000']
-policy_deductable = [1000, 2000, 500]
-umbrella_limit = [0, 5000000, 6000000, 4000000, 3000000, 8000000, 7000000, 9000000, 10000000, -1000000, 2000000]
-insured_sex = ['MALE', 'FEMALE']
-insured_education_level = ['MD', 'PhD', 'Associate', 'Masters', 'High School', 'College', 'JD']
-insured_occupation = ['craft-repair', 'machine-op-inspct', 'sales', 'armed-forces', 'tech-support',
- 'prof-specialty', 'other-service', 'priv-house-serv', 'exec-managerial',
- 'protective-serv', 'transport-moving', 'handlers-cleaners', 'adm-clerical',
- 'farming-fishing']
-insured_hobbies = ['sleeping', 'reading', 'board-games', 'bungie-jumping', 'base-jumping', 'golf',
- 'camping', 'dancing', 'skydiving', 'movies', 'hiking', 'yachting', 'paintball',
- 'chess', 'kayaking', 'polo', 'basketball', 'video-games', 'cross-fit',
- 'exercise']
-insured_relationship = ['husband', 'other-relative', 'own-child', 'unmarried', 'wife', 'not-in-family']
-incident_type = ['Single Vehicle Collision', 'Vehicle Theft', 'Multi-vehicle Collision', 'Parked Car']
-collision_type = ['Side Collision', '?', 'Rear Collision', 'Front Collision']
-incident_severity = ['Major Damage', 'Minor Damage', 'Total Loss', 'Trivial Damage']
-authorities_contacted = ['Police', 'nan', 'Fire', 'Other', 'Ambulance']
-incident_state = ['SC', 'VA', 'NY', 'OH', 'WV', 'NC', 'PA']
-incident_city = ['Columbus', 'Riverwood', 'Arlington', 'Springfield', 'Hillsdale', 'Northbend', 'Northbrook']
-incident_hour_of_the_day = [5, 8, 7, 20, 19, 0, 23, 21, 14, 22, 9, 12, 15, 6, 16, 4, 10, 1, 17, 3, 11, 13, 18, 2]
-number_of_vehicles_involved = [1, 3, 4, 2]
-property_damage = ['YES', '?', 'NO']
-bodily_injuries = [1, 0, 2]
-witnesses = [2, 0, 3, 1]
-police_report_available = ['YES', '?', 'NO']
-auto_make = ['Saab', 'Mercedes', 'Dodge', 'Chevrolet', 'Accura', 'Nissan', 'Audi', 'Toyota',
- 'Ford', 'Suburu', 'BMW', 'Jeep', 'Honda', 'Volkswagen']
-auto_model = ['92x', 'E400', 'RAM', 'Tahoe', 'RSX', '95', 'Pathfinder', 'A5', 'Camry', 'F150',
- 'A3', 'Highlander', 'Neon', 'MDX', 'Maxima', 'Legacy', 'TL', 'Impreza',
- 'Forrestor', 'Escape', 'Corolla', '3 Series', 'C300', 'Wrangler', 'M5', 'X5',
- 'Civic', 'Passat', 'Silverado', 'CRV', '93', 'Accord', 'X6', 'Malibu', 'Fusion',
- 'Jetta', 'ML350', 'Ultima', 'Grand Cherokee']
-auto_year = [2004, 2007, 2014, 2009, 2003, 2012, 2015, 1996, 2002, 2006, 2000, 2010, 1999, 2011,
- 2005, 2008, 1995, 2001, 1998, 1997, 2013]
-fraud_reported = ['Y', 'N']
-
-IMPORTANT: Only return valid, raw Python code. DO NOT use triple backticks (```) or markdown formatting. DO NOT include comments. DO NOT explain anything.
-"""
-    try:
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={"model": "mistral", "prompt": prompt, "stream": False}
-        )
-        response.raise_for_status()
-        return response.json()["response"].strip()
-    except Exception as e:
-        return f"# Error: Could not generate code\n# {str(e)}"
+# Local module imports
+from sql_generator import query_ollama, conn, cursor
+from fraud_detector import query
+from plotting import df, generate_code  # Corrected to avoid duplicate import
 
 # Streamlit UI
-st.title("LLM-Powered Insurance Claims Visualizer")
-question = st.text_input("Ask a question (e.g., 'Show average claim per policy state')")
+st.title("Auto Insurance Fraud Detection")
 
-if st.button("Generate Plot"):
-    if question:
-        try:
-            st.write("Generating Python code using LLM...")
-            code = generate_code(question, df.columns)
-            st.code(code, language="python")
+st.write("Check claim status, visualize data, or generate SQL query results.")
 
-            # Safely execute the code
-            local_vars = {"df": df.copy()}
-            exec(code, {
-                "pd": pd,
-                "sns": __import__("seaborn"),
-                "plt": __import__("matplotlib.pyplot"),
-            }, local_vars)
-        except Exception:
-            st.error("Error occurred while running the generated code:")
-            st.text(traceback.format_exc())
+# Input for user query
+user_query = st.text_input("Enter your question:", placeholder="e.g. Compare the average claim amounts between fraud and non-fraud cases")
+
+# Expanded options to include SQL
+task_option = st.radio("Choose a task:", ("Prediction", "Plotting", "SQL Query"))
+
+# Add a button to trigger query execution
+run_button = st.button("Run Query")
+
+# Process based on button click and user input
+if run_button:
+    if user_query:
+        if task_option == "Prediction":
+            with st.spinner("Processing fraud detection or claim status..."):
+                try:
+                    response = query(user_query)
+                    st.write("Result:")
+                    st.write(response)
+                except Exception as e:
+                    st.error("An error occurred during prediction.")
+                    st.text(traceback.format_exc())
+
+        elif task_option == "Plotting":
+            try:
+                st.write("🧠 Querying Mistral and generating Python code...")
+                code = generate_code(user_query, df.columns)
+                st.subheader("🧾 Generated Python Code")
+                st.code(code, language="python")
+
+                plt.clf()
+                local_vars = {"df": df.copy()}
+                exec(code, {"pd": pd, "sns": sns, "plt": plt}, local_vars)
+
+                st.pyplot(plt.gcf())
+                plt.clf()
+
+            except Exception:
+                st.error("❌ An error occurred while running the generated code:")
+                st.text(traceback.format_exc())
+
+        elif task_option == "SQL Query":
+            with st.spinner("Generating SQL and retrieving data..."):
+                try:
+                    sql_query = query_ollama(user_query)
+                    st.code(sql_query, language="sql")
+
+                    if "insurance_claims" not in sql_query.lower():
+                        raise ValueError("Generated query does not target the `insurance_claims` table.")
+
+                    cursor.execute(sql_query)
+                    rows = cursor.fetchall()
+                    columns = [col[0] for col in cursor.description]
+                    result_df = pd.DataFrame(rows, columns=columns)
+
+                    st.write("### Query Results")
+                    st.dataframe(result_df)
+
+                except Exception as e:
+                    st.error("❌ Error occurred during SQL execution:")
+                    st.text(traceback.format_exc())
+    else:
+        st.warning("Please enter a question before running the query.")
