@@ -5,6 +5,8 @@ system_prompt_sql = '''
     You are not allowed to make assumptions about the table or add any new columns. You must strictly use only the provided table columns. 
 
     no more errors or mistakes in the code hereafter, i dont want to see the error.
+    
+    use aliases for the table name and columns to make the query more readable.
 
     make sure you generate correct sql code, cross check once or twice before generating the code.
 
@@ -67,7 +69,7 @@ system_prompt_plotting = r'''
 
 You are a data scientist. Given the following user question and dataset columns, generate Python code using pandas and seaborn to create a plot.
 
-use only seaborn to plot the data.
+use only seaborn to plot the data with plot width 18 and height 7 and to make interactive add different colors.
 
 make sure you generate correct python code, cross check once or twice before generating the code.
 
