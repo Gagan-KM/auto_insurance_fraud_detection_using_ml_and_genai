@@ -2,3 +2,11 @@
 2. Compare the total claim amounts for different incident types.
 3. Show the number of claims where the policy annual premium is greater than $1000.
 4. Compare the average claim amounts between fraud and non-fraud cases
+
+328,48,521585,2014-10-17,OH,250/500,1000,1406.91,0,466132,MALE,MD,craft-repair,sleeping,husband,53300,0,2015-01-25,Single Vehicle Collision,Side Collision,Major Damage,Police,SC,Columbus,9935 4th Drive,5,1,YES,1,2,YES,71610,6510,13020,52080,Saab,92x,2004,Y,
+
+On 10th March 2025, a customer named Jane Smith filed a claim for an accident where her 2022 Mercedes-Benz was allegedly rear-ended by another vehicle. However, there were no witnesses, and the police report was not filed until several days after the incident. The customer claims the total damage amounted to $10,000, including a new bumper and medical treatment. Jane has only been with the insurance company for 6 months, and this is her first claim. The policy covers full collision damage but has a high deductible of $5,000. Upon further investigation, the car had no visible damage when inspected, and there were discrepancies in her story.
+
+On 25th April 2025, a customer named John Doe filed a claim for an accident involving his 2018 Honda Civic. The vehicle collided with another car at an intersection, causing severe damage to the front bumper and the left fender. John reported the accident to the police, and there was a witness to the incident who confirmed the details. The total claim amount is $4,500, covering the vehicle repair costs and medical expenses. The customer has been with the insurance company for 3 years, and the policy covers collision and comprehensive damages with a $1,000 deductible. The insured has no previous claims.
+
+On 22nd August 2025, John Doe submitted a claim for an accident involving his 2018 Honda Civic. According to the report, he collided with a tree after losing control of the vehicle while driving during heavy rain. The total claim amount was estimated at $4,500, covering vehicle repairs and medical expenses. John has been a customer for 3 years and has had no prior claims. The policy includes collision coverage with a moderate deductible. The police were called to the scene and confirmed the weather conditions, but no further details about the accident were provided.
