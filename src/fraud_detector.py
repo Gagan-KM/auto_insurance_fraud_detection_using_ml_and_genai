@@ -12,8 +12,8 @@ import json
 def query(user_prompt):
     url = 'http://localhost:11434/api/generate'
     sys_prompt = '''
-    You are a chatbot designed solely to provide detailed explanations for the questions posed by the user.
-    Your role is not to offer direct solutions, but to clarify concepts, elaborate on ideas, and guide the user to a better understanding of their query.
+    You are an AI model designed to provide only the reasoning behind why the insurance claim was predicted as genuine or fraudulent.
+    Your response should strictly focus on explaining the factors or features influencing the prediction, without adding any extra information or context.
     '''
     payload = {'model' : 'llama3.2', 'prompt' : user_prompt, 'system' : sys_prompt}
     try:
