@@ -15,39 +15,82 @@ from plotting import df, generate_code
 from fraud_detector import *
 import plotly.express as px
 
-# Title and subtitle
-#st.markdown('<h1 style="font-size: 3em;"><strong>Auto Insurance Fraud Detection</strong></h1>', unsafe_allow_html=True)
-#st.markdown('<h2 style="font-size: 3em;"><strong>Welcome to FraudDetect AI Assistant</strong></h2>', unsafe_allow_html=True)
-st.markdown('<h3 style="font-size: 3em;"><strong>How can I assist you today?</strong></h3>', unsafe_allow_html=True)
+# Adjust padding for the Streamlit app layout
+st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 4.7rem !important;
+        padding-bottom: 1rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# User input
+# Typing animation for the welcome message
+import streamlit as st
+import streamlit.components.v1 as components
+
+typing_html = """
+<div style="display: flex; justify-content: flex-start; align-items: center; height: 50px">
+  <h3 style="font-size: 3em; font-family: 'Roboto', sans-serif; color: white;">
+    <span id="typed-text"></span><span id="cursor">|</span>
+  </h3>
+</div>
+
+<script>
+  const text = "How can I assist you today?";
+  let i = 0;
+  const speed = 60;
+
+  function typeWriter() {
+    if (i < text.length) {
+      document.getElementById("typed-text").innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    }
+  }
+
+  setTimeout(typeWriter, 500);
+
+  // Optional blinking cursor
+  setInterval(() => {
+    const cursor = document.getElementById("cursor");
+    cursor.style.visibility = (cursor.style.visibility === 'hidden') ? 'visible' : 'hidden';
+  }, 500);
+</script>
+"""
+
+# Render the animated heading
+components.html(typing_html, height=70)
+
+# User input for query
 user_query = st.text_input(
     "Enter your question:",
     placeholder="e.g. Compare the average claim amounts between fraud and non-fraud cases",
 )
 
-# Task selection
+# Task selection options
 task_option = st.radio(
     "Choose a task:",
     ("Prediction", "Plotting", "SQL Query"),
     key="task_option",
-    format_func=lambda x: f"➤ {x}",
+    format_func=lambda x: f"{x}",
 )
 
-# Run button
+# Button to execute the selected task
 run_button = st.button("Run Query", key="run_button", help="Click to execute your selected task")
 
-# Sidebar styling
+# Sidebar for user inputs and additional options
 st.sidebar.markdown('<div class="sidebar">', unsafe_allow_html=True)
 st.sidebar.markdown('<h2><strong>Auto Insurance Fraud Detection</strong></h2>', unsafe_allow_html=True)
-#insurance_type = st.sidebar.selectbox("Select Insurance Type", ["Car Insurance", "Health Insurance"])
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
+
+# Load and train the model for car insurance fraud detection
 if True:
     model, model_features = train_car_insurance_model()
     
     st.sidebar.subheader("Enter Claim Information")
 
-    # Example limited input fields (expand based on model_features)
+    # Collect numeric inputs from the user
     input_data = {
         'months_as_customer': st.sidebar.number_input("Months as Customer", 0, 500, 12),
         'age': st.sidebar.number_input("Age", 18, 100, 30),
@@ -66,7 +109,7 @@ if True:
         'vehicle_claim': st.sidebar.number_input("Vehicle Claim", 0, 100000, 2000),
     }
 
-    # Add one-hot encoded fields (this is a simplified example)
+    # Collect categorical inputs and encode them
     categorical_defaults = {
         'policy_state_IL': 0,
         'policy_state_IN': 0,
@@ -82,7 +125,7 @@ if True:
         'police_report_available_YES': 0,
     }
 
-    # Get user inputs for those categories
+    # Get user inputs for categorical fields
     policy_state = st.sidebar.selectbox("Policy State", ["IL", "IN", "OH"])
     categorical_defaults[f'policy_state_{policy_state}'] = 1
 
@@ -104,11 +147,11 @@ if True:
     if police_report == "YES":
         categorical_defaults['police_report_available_YES'] = 1
 
-    # Merge numeric + categorical features
+    # Merge numeric and categorical inputs
     for k, v in categorical_defaults.items():
         input_data[k] = v
 
-    # Convert to dataframe
+    # Convert inputs to a DataFrame
     input_df = pd.DataFrame([input_data])
 
     # Ensure input matches model features
@@ -117,6 +160,7 @@ if True:
             input_df[col] = 0
     input_df = input_df[model_features]
 
+# Execute the selected task when the button is clicked
 if run_button:
     if task_option:
         if task_option == "Prediction" and user_query == '':
