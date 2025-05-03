@@ -14,6 +14,52 @@ from sql_generator import query_ollama, conn, cursor
 from plotting import df, generate_code
 from fraud_detector import *
 
+# Inject custom CSS for styling
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #1e1e1e;
+        color: #ffffff;
+        font-family: 'Arial', sans-serif;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+    .stTextInput>div>div>input {
+        background-color: #333333;
+        color: white;
+        border: 1px solid #555555;
+    }
+    .stRadio>div>div>label {
+        color: white;
+    }
+    .stSelectbox>div>div>div>div {
+        background-color: #333333;
+        color: white;
+    }
+    .stSidebar {
+        background-color: #2e2e2e;
+    }
+    .stSidebar .stSelectbox>div>div>div>div {
+        background-color: #444444;
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("Auto Insurance Fraud Detection")
 st.write("Check claim status, visualize data, or generate SQL query results.")
 
@@ -26,13 +72,10 @@ run_button = st.button("Run Query")
 insurance_type = st.sidebar.selectbox("Select Insurance Type", ["Car Insurance", "Health Insurance"])
 
 if insurance_type == "Car Insurance":
-    #st.title("🚗 Car Insurance Fraud Detection")
-
     model, model_features = train_car_insurance_model()
 
     st.sidebar.subheader("Enter Claim Information")
 
-    # Example limited input fields (expand based on model_features)
     input_data = {
         'months_as_customer': st.sidebar.number_input("Months as Customer", 0, 500, 12),
         'age': st.sidebar.number_input("Age", 18, 100, 30),
@@ -51,7 +94,6 @@ if insurance_type == "Car Insurance":
         'vehicle_claim': st.sidebar.number_input("Vehicle Claim", 0, 100000, 2000),
     }
 
-    # Add one-hot encoded fields (this is a simplified example)
     categorical_defaults = {
         'policy_state_IL': 0,
         'policy_state_IN': 0,
@@ -67,7 +109,6 @@ if insurance_type == "Car Insurance":
         'police_report_available_YES': 0,
     }
 
-    # Get user inputs for those categories
     policy_state = st.sidebar.selectbox("Policy State", ["IL", "IN", "OH"])
     categorical_defaults[f'policy_state_{policy_state}'] = 1
 
@@ -89,19 +130,16 @@ if insurance_type == "Car Insurance":
     if police_report == "YES":
         categorical_defaults['police_report_available_YES'] = 1
 
-    # Merge numeric + categorical features
     for k, v in categorical_defaults.items():
         input_data[k] = v
 
-    # Convert to dataframe
     input_df = pd.DataFrame([input_data])
 
-    # Ensure input matches model features
     for col in model_features:
         if col not in input_df.columns:
             input_df[col] = 0
     input_df = input_df[model_features]
- 
+
 if run_button:
     if task_option:
         if task_option == "Prediction" and user_query == '':
@@ -113,42 +151,4 @@ if run_button:
             else:
                 st.success("✅ This claim is predicted to be **LEGITIMATE**.")
 
-            explanation_prompt = "Given the following insurance claim details, explain why a machine learning model might predict it as "
-            explanation_prompt += "fraudulent:\n" if prediction == 1 else "legitimate:\n"
-            explanation_prompt += "\n".join([f"- {k}: {v}" for k, v in input_data.items()])
-
-            with st.spinner("Generating explanation using LLM..."):
-                explanation = query(explanation_prompt)
-                st.markdown("#### 🤖 Explanation from LLM")
-                st.write(explanation)
-        if task_option == "Plotting":
-            with st.spinner("Thinking..."):
-                try:
-                    code = generate_code(user_query, df.columns)
-                    st.subheader(f'Here is the result for "{user_query}"')
-                    plt.clf()
-                    local_vars = {"df": df.copy()}
-                    exec(code, {"pd": pd, "sns": sns, "plt": plt}, local_vars)
-                    st.pyplot(plt.gcf())
-                    plt.clf()
-                except Exception:
-                    st.error("An error occurred while running the generated code:")
-                    st.text(traceback.format_exc())
-        elif task_option == "SQL Query":
-            with st.spinner("Thinking..."):
-                try:
-                    sql_query = query_ollama(user_query)
-                    if "insurance_claims" not in sql_query.lower():
-                        raise ValueError("Generated query does not target the `insurance_claims` table.")
-                    st.subheader(f'Here is the result for "{user_query}"')
-                    cursor.execute(sql_query)
-                    rows = cursor.fetchall()
-                    columns = [col[0] for col in cursor.description]
-                    result_df = pd.DataFrame(rows, columns=columns)
-                    st.write("Query Results")
-                    st.dataframe(result_df)
-                except Exception as e:
-                    st.error("Error occurred during SQL execution:")
-                    st.text(traceback.format_exc())
-    else:
         st.warning("Please select a task before running the query.")
