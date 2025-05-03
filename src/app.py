@@ -165,12 +165,12 @@ if run_button:
     if task_option:
         if task_option == "Prediction" and user_query == '':
             prediction = model.predict(input_df)[0]
-            st.success("Prediction complete.")
+            #st.success("Prediction complete.")
 
             if prediction == 1:
-                st.error("⚠️ This claim is predicted to be **FRAUDULENT**.")
+                st.error("This claim is predicted to be **FRAUDULENT**.")
             else:
-                st.success("✅ This claim is predicted to be **LEGITIMATE**.")
+                st.success("This claim is predicted to be **LEGITIMATE**.")
 
             explanation_prompt = "Given the following insurance claim details, explain why a machine learning model might predict it as "
             explanation_prompt += "fraudulent:\n" if prediction == 1 else "legitimate:\n"
@@ -178,7 +178,7 @@ if run_button:
 
             with st.spinner("Generating explanation using LLM..."):
                 explanation = query(explanation_prompt)
-                st.markdown("#### 🤖 Explanation from LLM")
+                st.markdown("Explanation from LLM")
                 st.write(explanation)
         if task_option == "Plotting":
             with st.spinner("Thinking..."):

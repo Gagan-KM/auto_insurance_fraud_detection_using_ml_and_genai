@@ -14,7 +14,7 @@ df = pd.read_csv(r"C:\Users\gagan\Desktop\auto_insurance_fraud_detection_using_m
 
 # Initialize LLM
 from langchain_ollama import OllamaLLM
-llm = OllamaLLM(model="mistral:7b-instruct-q4_0")
+llm = OllamaLLM(model="llama3.2")
 
 # Generate Python code
 def generate_code(question, columns):
