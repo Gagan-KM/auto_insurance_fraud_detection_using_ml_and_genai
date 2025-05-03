@@ -1,0 +1,66 @@
+# config.toml
+[theme]
+base = "dark"
+primaryColor = "#ff6f61"  # Soft Coral Red
+backgroundColor = "#2a2a3a"  # Dark Slate Blue
+secondaryBackgroundColor = "#40404f"  # Slightly lighter dark gray for contrast
+textColor = "#ffffff"  # White text for readability
+font = "serif"  # Elegant serif font for headings and text
+codeFont = "monospace"  # Monospace font for code blocks
+
+# Optional adjustments for sidebar and header colors
+[theme.sidebar]
+backgroundColor = "#1f1f2e"  # Darker sidebar for elegance
+
+[theme.header]
+backgroundColor = "#3c3c4f"  # Muted dark tone for header
+
+# Add custom CSS for background image using base64 encoding
+[theme.css]
+customCSS = """
+[data-testid="stAppViewContainer"] > .main {
+    background-image: url('data:image/jpeg;base64,INSERT_YOUR_BASE64_STRING_HERE'); 
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* ChatGPT-like appearance settings */
+.st-chat {
+    background-color: #2a2a3a;  # Same as background color for consistency
+    color: #ffffff;  # White text for easy reading on dark background
+    font-family: 'Arial', sans-serif;  # ChatGPT-like font (Arial or system font)
+    font-size: 16px;  # Slightly larger font for chatbot readability
+}
+
+.st-chat .user-message {
+    background-color: #44475a;  # Darker gray for user messages (differentiates from bot messages)
+    color: #ffffff;  # White text for the user messages
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.st-chat .bot-message {
+    background-color: #4f4f67;  # Light gray-blue for bot messages
+    color: #ffffff;  # White text for bot messages
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.st-chat .st-chat-message-input {
+    background-color: #333344;  # Slightly lighter background for the input area
+    color: #ffffff;  # White text for input field
+    border: 1px solid #555555;  # Subtle border around input field
+}
+
+.st-chat .st-chat-send-button {
+    background-color: #ff6f61;  # Soft Coral Red button, matching primary color
+    color: #ffffff;  # White text for button
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+"""

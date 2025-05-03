@@ -104,6 +104,15 @@ When using groupby followed by count or similar aggregation, avoid selecting the
 Always ensure that `reset_index()` does not introduce a duplicate column name. Do not use ['column'].count().reset_index() if it results in a duplicate of the group-by column — use `.size()` with `reset_index(name='count')` instead.
 
 Dataset Columns: {columns}
+
+    months_as_customer, age, policy_number, policy_bind_date, policy_state, policy_csl, policy_deductable, 
+    policy_annual_premium, umbrella_limit, insured_zip, insured_sex, insured_education_level, 
+    insured_occupation, insured_hobbies, insured_relationship, capital-gains, capital-loss, incident_date, 
+    incident_type, collision_type, incident_severity, authorities_contacted, incident_state, incident_city, 
+    incident_location, incident_hour_of_the_day, number_of_vehicles_involved, property_damage, bodily_injuries, 
+    witnesses, police_report_available, total_claim_amount, injury_claim, property_claim, vehicle_claim, 
+    auto_make, auto_model, auto_year, fraud_reported, _c39
+    
 User Question: {question}
 
 You will have access to the unique values for some categorical columns to help with constructing the query:
