@@ -3,6 +3,7 @@ import requests
 import mysql.connector
 import pandas as pd
 import json
+import time
 import seaborn as sns
 import matplotlib.pyplot as plt
 import traceback
@@ -10,8 +11,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from sql_generator import query_ollama, conn, cursor
-from plotting import df, generate_code
+from sql_generator import query_sql, run_query
+from plotting import df, query_model
 from fraud_detector import *
 import plotly.express as px
 
@@ -81,7 +82,7 @@ run_button = st.button("Run Query", key="run_button", help="Click to execute you
 
 # Sidebar for user inputs and additional options
 st.sidebar.markdown('<div class="sidebar">', unsafe_allow_html=True)
-st.sidebar.markdown('<h2><strong>Auto Insurance Fraud Detection</strong></h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h1><strong>TrueClaimLLama</strong></h1>', unsafe_allow_html=True)
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # Load and train the model for car insurance fraud detection
@@ -163,51 +164,95 @@ if True:
 # Execute the selected task when the button is clicked
 if run_button:
     if task_option:
-        if task_option == "Run Prediction" and user_query == '':
-            prediction = model.predict(input_df)[0]
-            #st.success("Prediction complete.")
-
-            if prediction == 1:
-                st.error("This claim is predicted to be **FRAUDULENT**.")
+        if task_option == "Run Prediction":
+            if user_query.strip() != '':
+                st.warning("Please clear the query box before running the prediction.")
+                user_query = ''
             else:
-                st.success("This claim is predicted to be **LEGITIMATE**.")
+                try:
+                    # Start prediction
+                    start_time = time.time()
+                    prediction = model.predict(input_df)[0]
 
-            explanation_prompt = "Given the following insurance claim details, explain why a machine learning model might predict it as "
-            explanation_prompt += "fraudulent:\n" if prediction == 1 else "legitimate:\n"
-            explanation_prompt += "\n".join([f"- {k}: {v}" for k, v in input_data.items()])
+                    # Display prediction result
+                    if prediction == 1:
+                        st.error("This claim is predicted to be **FRAUDULENT**.")
+                    else:
+                        st.success("This claim is predicted to be **LEGITIMATE**.")
 
-            with st.spinner("Generating explanation using LLM..."):
-                explanation = query(explanation_prompt)
-                st.markdown("Explanation from LLM")
-                st.write(explanation)
+                    st.caption(f"Prediction completed in {time.time() - start_time:.2f} seconds.")
+
+                    # Generate explanation prompt for LLM
+                    explanation_prompt = (
+                        "Given the following insurance claim details, explain why a machine learning model might predict it as "
+                    )
+                    explanation_prompt += "fraudulent:\n" if prediction == 1 else "legitimate:\n"
+                    explanation_prompt += "\n".join([f"- {k}: {v}" for k, v in input_data.items()])
+
+                    # Generate explanation using LLM
+                    with st.spinner("Generating explanation using LLM..."):
+                        try:
+                            start_time = time.time()
+                            explanation = query(explanation_prompt)
+                            st.markdown("### Explanation from LLM")
+                            st.write(explanation)
+                            st.caption(f"Explanation generated in {time.time() - start_time:.2f} seconds.")
+                        except Exception as e:
+                            st.error(f"Error generating explanation: {e}")
+                except Exception as e:
+                    st.error(f"Error during prediction: {e}")
+
         if task_option == "Generate Visualizations":
             with st.spinner("Thinking..."):
                 try:
-                    code = generate_code(user_query, df.columns)
-                    st.subheader(f'Here is the result for "{user_query}"')
+                    start_time = time.time()
+                    code = query_model(user_query)
+                    st.subheader(f"Generated Code for: '{user_query}'")
+                    st.code(code)
+                    st.caption(f"Code generated in {time.time() - start_time:.2f} seconds.")
+                except Exception as e:
+                    st.error(f"Error generating code: {e}")
+
+            st.subheader("Generated Plot")
+            with st.spinner("Rendering..."):
+                try:
+                    start_time = time.time()
                     plt.clf()
                     local_vars = {"df": df.copy()}
                     exec(code, {"pd": pd, "sns": sns, "plt": plt}, local_vars)
                     st.pyplot(plt.gcf())
                     plt.clf()
+                    st.caption(f"Plot rendered in {time.time() - start_time:.2f} seconds.")
                 except Exception:
                     st.error("An error occurred while running the generated code:")
                     st.text(traceback.format_exc())
+
         elif task_option == "Retrieve Data":
             with st.spinner("Thinking..."):
                 try:
-                    sql_query = query_ollama(user_query)
-                    if "insurance_claims" not in sql_query.lower():
-                        raise ValueError("Generated query does not target the `insurance_claims` table.")
-                    st.subheader(f'Here is the result for "{user_query}"')
-                    cursor.execute(sql_query)
-                    rows = cursor.fetchall()
-                    columns = [col[0] for col in cursor.description]
-                    result_df = pd.DataFrame(rows, columns=columns)
-                    st.write("Query Results")
-                    st.dataframe(result_df)
+                    if user_query:
+                        start_time = time.time()
+                        sql = query_sql(user_query)
+                        st.subheader("Generated SQL Query")
+                        st.code(sql, language="sql")
+                        st.caption(f"SQL generated in {time.time() - start_time:.2f} seconds.")
                 except Exception as e:
-                    st.error("Error occurred during SQL execution:")
-                    st.text(traceback.format_exc())
+                    st.error(f"Error generating SQL: {e}")
+                    sql = None
+
+            with st.spinner("Running query..."):
+                try:
+                    if sql:
+                        start_time = time.time()
+                        result = run_query(sql)
+                        if isinstance(result, pd.DataFrame):
+                            st.subheader("Query Result")
+                            st.dataframe(result)
+                        else:
+                            st.error("An error occurred while executing the SQL:")
+                            st.text(result)
+                        st.caption(f"Query executed in {time.time() - start_time:.2f} seconds.")
+                except Exception as e:
+                    st.error(f"Error executing query: {e}")
     else:
         st.warning("Please select a task before running the query.")

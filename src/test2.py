@@ -1,44 +1,46 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import requests
 import json
 import traceback
+import mysql.connector
 
-df = pd.read_csv(r'C:\Users\gagan\Desktop\auto_insurance_fraud_detection_using_ml_and_genai\data\insurance_claims.csv')
+# MySQL credentials
+MYSQL_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "20220288002",
+    "database": "fraud_detection"
+}
 
-def query_model(user_prompt):
+def query_sql(user_prompt):
     url = 'http://localhost:11434/api/generate'
-    
     sys_prompt = '''
-    Before starting, Avoid using ```python or any markdown-style formatting.
-    You must use this exact dataset path and no other: 'C:/Users/gagan/Desktop/auto_insurance_fraud_detection_using_ml_and_genai/data/insurance_claims.csv'. Do not alter, abbreviate, or replace it in any way.
+    You are a helpful assistant that only responds with valid MySQL SELECT statements on this table: `insurance_claims` from the database `fraud_detection`.
 
-    IMPORTANT RULES:
-    - Avoid using ```python or any markdown-style formatting.
-    - Always generate clean, valid Python code with correct indentation and syntax.
-    - Avoid declaring unnecessary or unused variables in pandas or plotting.
-    - Avoid poor syntax in pandas expressions, column names, or matplotlib plotting.
-    - Avoid declaring variables that are not used later.
-    - Use only pandas and matplotlib.pyplot with figure size width=18 and height=7.
-    - Do not use any other libraries (e.g., seaborn) unless explicitly stated.
-    - Do not include any comments or explanations in the code.
-    - Dataset path must be exactly: 'C:/Users/gagan/Desktop/auto_insurance_fraud_detection_using_ml_and_genai/data/insurance_claims.csv'
+    generate correct SQL query based on the user question and the dataset columns provided.
+    
+    
+    RULES:
+    - DO NOT use markdown syntax (no ```sql, no ``` at all).
+    - DO NOT add comments, explanations, or formatting.
+    - ONLY return the raw SQL query — just one clean SELECT statement.
 
-    TASK:
-    Generate clean, valid Python code that reads the dataset and plots data based on the user question using only allowed libraries, without unused variable declarations.
+    GENERAL INSTRUCTIONS:
+    - Use only the table `insurance_claims`.
+    - Your entire response must be the SQL query only.
 
-    ALLOWED COLUMNS:
+    Use only the following columns:
     months_as_customer, age, policy_number, policy_bind_date, policy_state, policy_csl, policy_deductable, 
     policy_annual_premium, umbrella_limit, insured_zip, insured_sex, insured_education_level, 
     insured_occupation, insured_hobbies, insured_relationship, capital-gains, capital-loss, incident_date, 
     incident_type, collision_type, incident_severity, authorities_contacted, incident_state, incident_city, 
     incident_location, incident_hour_of_the_day, number_of_vehicles_involved, property_damage, bodily_injuries, 
     witnesses, police_report_available, total_claim_amount, injury_claim, property_claim, vehicle_claim, 
-    auto_make, auto_model, auto_year, fraud_reported
+    auto_make, auto_model, auto_year, fraud_reported.
 
-    UNIQUE VALUES FOR CATEGORICAL COLUMNS:
+    Unique values for some categorical columns:
+
     policy_state = ['OH', 'IN', 'IL']
     insured_sex = ['MALE', 'FEMALE']
     insured_education_level = ['MD', 'PhD', 'Associate', 'Masters', 'High School', 'College', 'JD']
@@ -66,7 +68,7 @@ def query_model(user_prompt):
                 'Civic', 'Passat', 'Silverado', 'CRV', '93', 'Accord', 'X6', 'Malibu', 'Fusion',
                 'Jetta', 'ML350', 'Ultima', 'Grand Cherokee']
     fraud_reported = ['Y', 'N']
-    '''
+'''
 
     payload = {
         'model': 'llama3.2',
@@ -80,8 +82,46 @@ def query_model(user_prompt):
             result = response.text
             lines = result.strip().split("\n")
             full_response = "".join(json.loads(line)["response"] for line in lines)
-            return full_response
+            return full_response.strip()
         else:
             return "Error: Unable to reach the AI model service."
     except Exception as e:
         return f"Error: {str(e)}"
+
+def run_query(sql_query):
+    try:
+        conn = mysql.connector.connect(**MYSQL_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute(sql_query)
+        rows = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(rows, columns=columns)
+        cursor.close()
+        conn.close()
+        return df
+    except Exception as e:
+        return f"SQL Execution Error:\n{traceback.format_exc()}"
+
+def main():
+    st.set_page_config(layout="wide")
+    st.title("Gemma3 - SQL Data Explorer (MySQL Edition)")
+
+    user_query = st.text_input("Ask your data question (SQL will be generated and run):")
+
+    if user_query:
+        with st.spinner("Generating SQL query..."):
+            sql = query_sql(user_query)
+            st.subheader("Generated SQL Query")
+            st.code(sql, language="sql")
+
+        with st.spinner("Running query..."):
+            result = run_query(sql)
+            if isinstance(result, pd.DataFrame):
+                st.subheader("Query Result")
+                st.dataframe(result)
+            else:
+                st.error("An error occurred while executing the SQL:")
+                st.text(result)
+
+if __name__ == "__main__":
+    main()
