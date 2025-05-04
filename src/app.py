@@ -68,10 +68,10 @@ user_query = st.text_input(
     placeholder="e.g. Compare the average claim amounts between fraud and non-fraud cases",
 )
 
-# Task selection options
+# Task selection
 task_option = st.radio(
-    "Choose a task:",
-    ("Prediction", "Plotting", "SQL Query"),
+    "Select Task Type:",
+    ("Run Prediction", "Generate Visualizations", "Retrieve Data"),
     key="task_option",
     format_func=lambda x: f"{x}",
 )
@@ -163,7 +163,7 @@ if True:
 # Execute the selected task when the button is clicked
 if run_button:
     if task_option:
-        if task_option == "Prediction" and user_query == '':
+        if task_option == "Run Prediction" and user_query == '':
             prediction = model.predict(input_df)[0]
             #st.success("Prediction complete.")
 
@@ -180,7 +180,7 @@ if run_button:
                 explanation = query(explanation_prompt)
                 st.markdown("Explanation from LLM")
                 st.write(explanation)
-        if task_option == "Plotting":
+        if task_option == "Generate Visualizations":
             with st.spinner("Thinking..."):
                 try:
                     code = generate_code(user_query, df.columns)
@@ -193,7 +193,7 @@ if run_button:
                 except Exception:
                     st.error("An error occurred while running the generated code:")
                     st.text(traceback.format_exc())
-        elif task_option == "SQL Query":
+        elif task_option == "Retrieve Data":
             with st.spinner("Thinking..."):
                 try:
                     sql_query = query_ollama(user_query)

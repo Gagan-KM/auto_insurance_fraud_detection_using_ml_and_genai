@@ -5,7 +5,7 @@ import requests
 from prompts import system_prompt_sql
 
 # Ollama configuration
-OLLAMA_MODEL = "llama3.2" 
+OLLAMA_MODEL = "mistral:7b-instruct-q4_0" 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # MySQL connection
