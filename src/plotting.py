@@ -6,6 +6,9 @@ import requests
 import json
 import traceback
 
+model_name = 'llama3.2'
+model_parameters = '7b'
+
 df = pd.read_csv(r'C:\Users\gagan\Desktop\auto_insurance_fraud_detection_using_ml_and_genai\data\insurance_claims.csv')
 
 def query_model(user_prompt):

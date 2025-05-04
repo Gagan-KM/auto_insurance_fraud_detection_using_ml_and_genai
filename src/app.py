@@ -12,9 +12,11 @@ import plotly.graph_objects as go
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sql_generator import query_sql, run_query
-from plotting import df, query_model
+from plotting import df, query_model, model_name, model_parameters
 from fraud_detector import *
 import plotly.express as px
+import streamlit as st
+import streamlit.components.v1 as components
 
 # Adjust padding for the Streamlit app layout
 st.markdown("""
@@ -26,10 +28,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Typing animation for the welcome message
-import streamlit as st
-import streamlit.components.v1 as components
 
+# Typing animation for the welcome message
 # First Typing Message
 typing_html_1 = """
 <div style="display: flex; justify-content: flex-start; align-items: center; height: 50px; margin: 0; padding: 0;">
@@ -129,8 +129,8 @@ run_button = st.button("Run Query", key="run_button", help="Click to execute you
 # Sidebar for user inputs and additional options
 st.sidebar.markdown('<div class="sidebar">', unsafe_allow_html=True)
 st.sidebar.markdown('<h1><strong>TrueClaimLLama</strong></h1>', unsafe_allow_html=True)
+st.sidebar.markdown(f'<h4>Model used {model_name}:{model_parameters}</h4>', unsafe_allow_html=True)
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
-
 # Load and train the model for car insurance fraud detection
 if True:
     model, model_features = train_car_insurance_model()
@@ -216,26 +216,18 @@ if run_button:
                 user_query = ''
             else:
                 try:
-                    # Start prediction
                     start_time = time.time()
                     prediction = model.predict(input_df)[0]
-
-                    # Display prediction result
                     if prediction == 1:
                         st.error("This claim is predicted to be **FRAUDULENT**.")
                     else:
                         st.success("This claim is predicted to be **LEGITIMATE**.")
-
                     st.caption(f"Prediction completed in {time.time() - start_time:.2f} seconds.")
-
-                    # Generate explanation prompt for LLM
                     explanation_prompt = (
                         "Given the following insurance claim details, explain why a machine learning model might predict it as "
                     )
                     explanation_prompt += "fraudulent:\n" if prediction == 1 else "legitimate:\n"
                     explanation_prompt += "\n".join([f"- {k}: {v}" for k, v in input_data.items()])
-
-                    # Generate explanation using LLM
                     with st.spinner("Generating explanation using LLM..."):
                         try:
                             start_time = time.time()
@@ -247,7 +239,7 @@ if run_button:
                             st.error(f"Error generating explanation: {e}")
                 except Exception as e:
                     st.error(f"Error during prediction: {e}")
-
+        # 
         if task_option == "Generate Visualizations":
             with st.spinner("Thinking..."):
                 try:
