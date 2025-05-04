@@ -30,38 +30,84 @@ st.markdown("""
 import streamlit as st
 import streamlit.components.v1 as components
 
-typing_html = """
-<div style="display: flex; justify-content: flex-start; align-items: center; height: 50px">
-  <h3 style="font-size: 3em; font-family: 'Roboto', sans-serif; color: white;">
-    <span id="typed-text"></span><span id="cursor">|</span>
+# First Typing Message
+typing_html_1 = """
+<div style="display: flex; justify-content: flex-start; align-items: center; height: 50px; margin: 0; padding: 0;">
+  <h3 style="font-size: 2.5em; font-family: 'Roboto', sans-serif; color: white; margin: 0; padding: 0;">
+    <span id="typed-text-1"></span><span id="cursor-1">|</span>
   </h3>
 </div>
 
 <script>
-  const text = "How can I assist you today?";
-  let i = 0;
-  const speed = 60;
+  const text1 = "Hello, How can I assist you today?";
+  let i1 = 0;
+  const speed1 = 60;
 
-  function typeWriter() {
-    if (i < text.length) {
-      document.getElementById("typed-text").innerHTML += text.charAt(i);
-      i++;
-      setTimeout(typeWriter, speed);
+  function typeWriter1() {
+    if (i1 < text1.length) {
+      document.getElementById("typed-text-1").innerHTML += text1.charAt(i1);
+      i1++;
+      setTimeout(typeWriter1, speed1);
     }
   }
 
-  setTimeout(typeWriter, 500);
+  setTimeout(typeWriter1, 300);
 
-  // Optional blinking cursor
   setInterval(() => {
-    const cursor = document.getElementById("cursor");
+    const cursor = document.getElementById("cursor-1");
     cursor.style.visibility = (cursor.style.visibility === 'hidden') ? 'visible' : 'hidden';
   }, 500);
 </script>
 """
+components.html(typing_html_1, height=55)
 
-# Render the animated heading
-components.html(typing_html, height=70)
+# Second Typing Rotating Message
+typing_html_2 = """
+<div style="display: flex; justify-content: flex-start; align-items: center; height: 50px; margin: 0; padding: 0;">
+  <h3 style="font-size: 1.6em; font-family: 'Roboto', sans-serif; color: white; margin: 0; padding: 0;">
+    <span id="typed-text-2"></span><span id="cursor-2">|</span>
+  </h3>
+</div>
+
+<script>
+  const messages = [
+    "Predicting insurance fraud with confidence...",
+    "Analyzing claim patterns for anomalies...",
+    "Visualizing fraud trends for deeper insights...",
+    "Empowering decisions through data science..."
+  ];
+
+  let messageIndex = 0;
+  let charIndex = 0;
+  const speed = 50;
+  const pauseTime = 1600;
+
+  function typeWriter2() {
+    const currentText = messages[messageIndex];
+    if (charIndex < currentText.length) {
+      document.getElementById("typed-text-2").innerHTML += currentText.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeWriter2, speed);
+    } else {
+      setTimeout(() => {
+        document.getElementById("typed-text-2").innerHTML = "";
+        charIndex = 0;
+        messageIndex = (messageIndex + 1) % messages.length;
+        setTimeout(typeWriter2, speed);
+      }, pauseTime);
+    }
+  }
+
+  setTimeout(typeWriter2, 500);
+
+  setInterval(() => {
+    const cursor = document.getElementById("cursor-2");
+    cursor.style.visibility = (cursor.style.visibility === 'hidden') ? 'visible' : 'visible';
+  }, 500);
+</script>
+"""
+components.html(typing_html_2, height=55)
+
 
 # User input for query
 user_query = st.text_input(
