@@ -74,7 +74,8 @@ typing_html_2 = """
     "Predicting insurance fraud with confidence...",
     "Analyzing claim patterns for anomalies...",
     "Visualizing fraud trends for deeper insights...",
-    "Empowering decisions through data science..."
+    "Identifying fraud trends through advanced analytics...",
+    "Driving informed decisions with data-driven insights..."
   ];
 
   let messageIndex = 0;

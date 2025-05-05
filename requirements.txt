@@ -13,3 +13,6 @@ psycopg2-binary
 sqlalchemy
 shap
 ollama
+mysql-connector-python
+plotly
+requests
