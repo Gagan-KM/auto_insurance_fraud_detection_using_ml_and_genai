@@ -1,5 +1,34 @@
 #plotting
+    How has the number of claims changed over time?
+    #pass
 
+    Show the trend of total claim amounts over each month.
+    #fail
+
+    How does the average customer age vary across the months or years?
+    #fail
+
+    Display the change in the number of reported fraud cases over time.
+    #partially correct 
+
+    Plot the average claim amount for each time of day.
+    #partially correct
+
+    How does the number of incidents vary by hour of the day?
+    #fail 
+
+    What is the trend of vehicle-related claims year over year?
+    #partially correct
+
+    How has the frequency of different types of incidents changed over time?
+    #partially correct
+
+    Show the time-based trend in the number of bodily injuries reported.
+    #pass
+
+    Display how the average insurance premium has changed across different years.
+    #partially correct
+    
     Show the distribution of total claim amounts to detect outliers or high-value claims.
     #pass
 
