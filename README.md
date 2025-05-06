@@ -6,7 +6,8 @@
 
 The **Auto Insurance Fraud Detection System** is an end-to-end solution that combines **Machine Learning (ML)** with **Generative AI (LLMs)** to detect fraudulent claims and provide intelligent insights from data. The system is built entirely using **Python**, making use of **LLM-based reasoning**, **Natural Language-to-SQL translation**, and **data visualizations** — all within an interactive **Streamlit** web app.
 
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/a0397968-990c-4e43-aace-e6ab1a3ec84d)
+
 
 Users can:
 
