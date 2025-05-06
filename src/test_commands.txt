@@ -31,7 +31,7 @@
     
     Show the distribution of total claim amounts to detect outliers or high-value claims.
     #pass
-
+    --------------------------------------------------------------------------------------
     Plot average claim amount by insurance type (e.g., personal auto, collision).
     #pass
 

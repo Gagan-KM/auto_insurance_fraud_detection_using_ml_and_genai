@@ -67,7 +67,8 @@ def train_car_insurance_model():
     y_pred_train = clf.predict(X_train)
     y_pred_val = clf.predict(X_val)
 
-    # Print performance metrics
+
+    print("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")    # Print performance metrics
     print("Training Set Metrics:")
     print(f"Accuracy: {accuracy_score(y_train, y_pred_train):.2f}")
 
@@ -80,6 +81,7 @@ def train_car_insurance_model():
     # Cross-validation accuracy (optional but insightful)
     cv_scores = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
     print(f"\nCross-Validation Accuracy (5 folds): {cv_scores.mean():.2f} ± {cv_scores.std():.2f}")
+    print("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
     
     # Model Evaluation Summary:
     # 

@@ -1,66 +1,62 @@
-# config.toml
 [theme]
 base = "dark"
-primaryColor = "#ff6f61"  # Soft Coral Red
-backgroundColor = "#2a2a3a"  # Dark Slate Blue
-secondaryBackgroundColor = "#40404f"  # Slightly lighter dark gray for contrast
-textColor = "#ffffff"  # White text for readability
-font = "Roboto, sans-serif"  # Classic Google Font (Roboto)
-codeFont = "monospace"  # Monospace font for code blocks
+primaryColor = "#ff6f61"
+backgroundColor = "#0e1117"  # Canvas background color in dark mode
+secondaryBackgroundColor = "#40404f"
+textColor = "#ffffff"
+font = "Roboto, sans-serif"
+codeFont = "monospace"
 
-# Optional adjustments for sidebar and header colors
 [theme.sidebar]
-backgroundColor = "#1f1f2e"  # Darker sidebar for elegance
+backgroundColor = "#1c1e26"  # History section color in dark mode
 
 [theme.header]
-backgroundColor = "#3c3c4f"  # Muted dark tone for header
+backgroundColor = "#3c3c4f"
 
-# Add custom CSS for background image using base64 encoding
 [theme.css]
 customCSS = """
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');  /* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 [data-testid="stAppViewContainer"] > .main {
     background-image: url('data:image/jpeg;base64,INSERT_YOUR_BASE64_STRING_HERE'); 
-    background-size: cover; 
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-/* ChatGPT-like appearance settings */
 .st-chat {
-    background-color: #2a2a3a;  # Same as background color for consistency
-    color: #ffffff;  # White text for easy reading on dark background
-    font-family: 'Roboto', sans-serif;  # Google font Roboto for chatbot text
-    font-size: 16px;  # Slightly larger font for chatbot readability
+    background-color: #0e1117;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
 }
 
 .st-chat .user-message {
-    background-color: #44475a;  # Darker gray for user messages (differentiates from bot messages)
-    color: #ffffff;  # White text for the user messages
+    background-color: #44475a;
+    color: #ffffff;
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 10px;
 }
 
 .st-chat .bot-message {
-    background-color: #4f4f67;  # Light gray-blue for bot messages
-    color: #ffffff;  # White text for bot messages
+    background-color: #4f4f67;
+    color: #ffffff;
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 10px;
 }
 
 .st-chat .st-chat-message-input {
-    background-color: #333344;  # Slightly lighter background for the input area
-    color: #ffffff;  # White text for input field
-    border: 1px solid #555555;  # Subtle border around input field
+    background-color: #333344;
+    color: #ffffff;
+    border: 1px solid #555555;
 }
 
 .st-chat .st-chat-send-button {
-    background-color: #ff6f61;  # Soft Coral Red button, matching primary color
-    color: #ffffff;  # White text for button
+    background-color: #ff6f61;
+    color: #ffffff;
     border-radius: 8px;
     padding: 10px 20px;
 }
